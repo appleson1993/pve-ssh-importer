@@ -1,0 +1,275 @@
+{
+  "name": "pve-ssh-importer",
+  "displayName": "PVE SSH 匯入器",
+  "description": "瀏覽 Proxmox VE 資源、產生受管理的 SSH 主機設定，並透過 Remote - SSH 連線。",
+  "version": "0.2.2",
+  "publisher": "appleson1993",
+  "author": "PVE SSH Importer contributors",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#173b3f",
+    "theme": "dark"
+  },
+  "pricing": "Free",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": true
+    }
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "proxmox",
+    "proxmox-ve",
+    "pve",
+    "lxc",
+    "qemu",
+    "ssh",
+    "remote",
+    "remote-ssh"
+  ],
+  "activationEvents": [
+    "onView:pveSshImporter.resources",
+    "onCommand:pveSshImporter.addCluster",
+    "onCommand:pveSshImporter.testConnection",
+    "onCommand:pveSshImporter.refresh",
+    "onCommand:pveSshImporter.importResource",
+    "onCommand:pveSshImporter.importSelectedResources",
+    "onCommand:pveSshImporter.syncHosts",
+    "onCommand:pveSshImporter.connectResource",
+    "onCommand:pveSshImporter.openSshConfig",
+    "onCommand:pveSshImporter.removeCluster",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "extensionDependencies": [
+    "ms-vscode-remote.remote-ssh"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "pveSshImporter.addCluster",
+        "title": "PVE：新增叢集",
+        "icon": "$(add)"
+      },
+      {
+        "command": "pveSshImporter.testConnection",
+        "title": "PVE：測試連線",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "pveSshImporter.refresh",
+        "title": "PVE：重新整理資源",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "pveSshImporter.importResource",
+        "title": "PVE：匯入並連線",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "pveSshImporter.importSelectedResources",
+        "title": "PVE：匯入所選資源"
+      },
+      {
+        "command": "pveSshImporter.syncHosts",
+        "title": "PVE：同步 SSH 主機",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "pveSshImporter.connectResource",
+        "title": "PVE：連線至資源",
+        "icon": "$(remote)"
+      },
+      {
+        "command": "pveSshImporter.openSshConfig",
+        "title": "PVE：開啟 SSH 設定檔"
+      },
+      {
+        "command": "pveSshImporter.removeCluster",
+        "title": "PVE：移除叢集",
+        "icon": "$(trash)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pveSshImporter",
+          "title": "PVE SSH",
+          "icon": "media/pve.svg"
+        }
+      ]
+    },
+    "views": {
+      "pveSshImporter": [
+        {
+          "id": "pveSshImporter.resources",
+          "name": "Proxmox 資源"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "pveSshImporter.resources",
+        "contents": "尚未設定 Proxmox VE 叢集。\n[新增叢集](command:pveSshImporter.addCluster)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "pveSshImporter.refresh",
+          "when": "view == pveSshImporter.resources",
+          "group": "navigation@1"
+        },
+        {
+          "command": "pveSshImporter.addCluster",
+          "when": "view == pveSshImporter.resources",
+          "group": "navigation@2"
+        },
+        {
+          "command": "pveSshImporter.syncHosts",
+          "when": "view == pveSshImporter.resources",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "pveSshImporter.testConnection",
+          "when": "view == pveSshImporter.resources && viewItem == pveCluster",
+          "group": "inline@1"
+        },
+        {
+          "command": "pveSshImporter.removeCluster",
+          "when": "view == pveSshImporter.resources && viewItem == pveCluster",
+          "group": "pve@9"
+        },
+        {
+          "command": "pveSshImporter.importResource",
+          "when": "view == pveSshImporter.resources && viewItem == pveResource",
+          "group": "inline@1"
+        },
+        {
+          "command": "pveSshImporter.connectResource",
+          "when": "view == pveSshImporter.resources && viewItem == pveResourceImported",
+          "group": "inline@1"
+        },
+        {
+          "command": "pveSshImporter.importResource",
+          "when": "view == pveSshImporter.resources && viewItem == pveResourceImported",
+          "group": "pve@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "PVE SSH 匯入器",
+      "properties": {
+        "pveSshImporter.clusters": {
+          "type": "array",
+          "default": [],
+          "scope": "window",
+          "description": "已設定的 Proxmox VE 叢集。權杖密鑰會另外儲存於 VS Code 安全儲存區。",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "apiUrl",
+              "tokenId"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "apiUrl": {
+                "type": "string"
+              },
+              "tokenId": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "pveSshImporter.sshConfigFile": {
+          "type": "string",
+          "default": "~/.ssh/pve_vscode_hosts",
+          "description": "用來儲存受管理 PVE 主機區塊的 SSH 設定檔；外掛會將此檔案加入 Remote - SSH 實際使用的設定檔。"
+        },
+        "pveSshImporter.defaultUser": {
+          "type": "string",
+          "default": "root",
+          "description": "匯入時預設帶入的 SSH 使用者名稱。"
+        },
+        "pveSshImporter.defaultPort": {
+          "type": "integer",
+          "default": 22,
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "匯入時預設帶入的 SSH 連接埠。"
+        },
+        "pveSshImporter.defaultIdentityFile": {
+          "type": "string",
+          "default": "",
+          "description": "匯入時預設帶入的私鑰路徑；只會儲存路徑，不會儲存私鑰內容。"
+        },
+        "pveSshImporter.useProxyJump": {
+          "type": "boolean",
+          "default": false,
+          "description": "將已匯入的 PVE 節點預設帶入為虛擬機與容器的 ProxyJump。"
+        },
+        "pveSshImporter.autoDetectGuestIp": {
+          "type": "boolean",
+          "default": true,
+          "description": "匯入時透過 LXC 介面資訊或 QEMU Guest Agent 自動偵測 Guest IP 位址。"
+        },
+        "pveSshImporter.autoSyncOnStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "VS Code 啟動時同步已匯入的目標；不會自動新增資源。"
+        },
+        "pveSshImporter.allowInsecureTls": {
+          "type": "boolean",
+          "default": false,
+          "description": "允許自簽或不受信任的 PVE TLS 憑證；啟用後會降低傳輸安全性。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p ./ --noEmit",
+    "compile": "npm run typecheck && esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js --sourcemap --minify",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js --sourcemap --watch",
+    "lint": "eslint src",
+    "test": "tsc -p ./ && node --test out/test/*.test.js",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "vscode:prepublish": "npm run compile",
+    "validate:release": "node scripts/validate-release.mjs",
+    "release:check": "npm run check && npm run compile && npm run validate:release && vsce ls --tree",
+    "prepackage": "npm run release:check",
+    "package": "vsce package --no-dependencies --allow-missing-repository",
+    "publish:marketplace": "npm run release:check && vsce publish --no-dependencies --allow-missing-repository"
+  },
+  "dependencies": {
+    "axios": "^1.11.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^22.17.0",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.9",
+    "eslint": "^9.33.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.1"
+  }
+}

@@ -1,0 +1,15 @@
+.github/**
+.vscode/**
+.gitignore
+src/**
+scripts/**
+test/**
+node_modules/**
+out/**
+eslint.config.mjs
+tsconfig.json
+PRD.md
+PUBLISHING.md
+media/marketplace-icon.svg
+*.vsix
+**/*.map
