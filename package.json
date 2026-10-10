@@ -260,7 +260,7 @@
     "publish:marketplace": "npm run release:check && vsce publish --no-dependencies --allow-missing-repository"
   },
   "dependencies": {
-    "axios": "^1.11.0"
+    "axios": "^1.20.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
